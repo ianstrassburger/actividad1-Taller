@@ -9,7 +9,8 @@ COLUMNAS = {
     "TRIMESTRE": {"tipo": "int", "completitud": 100},
     "ITF": {"tipo": "int", "completitud": 85},
     "MAS_500": {"tipo": "string", "completitud": 100},
-    "GDECCFR": {"tipo": "int", "completitud": 88}
+    "GDECCFR": {"tipo": "int", "completitud": 88},
+    "NIVEL_ED": {"tipo": "int", "completitud": 88}
 }
 
 
@@ -31,6 +32,23 @@ ROLES = {
         "columnas": ["PONDERA", "ESTADO", "ITF", "ANO4", "TRIMESTRE"],
         "criterio": "completitud",
         "orden": "B"
+    },
+
+    "economista": {
+        "columnas": [
+            "PONDERA",
+            "ESTADO",
+            "CAT_OCUP",
+            "REGION",
+            "AGLOMERADO",
+            "ANO4",
+            "TRIMESTRE",
+            "ITF",
+            "GDECCFR"
+        ],
+        "criterio": "nombre",
+        "orden": "A",
+        "minimo": 90
     }
 }
 
@@ -41,6 +59,8 @@ def generar_informe(rol=None):
 
     Si no se indica un rol, devuelve todas las columnas
     ordenadas por completitud de forma descendente.
+    Si el rol no existe o su criterio es inválido, informa
+    el problema sin fallar.
     """
 
     if rol is None:
@@ -52,6 +72,7 @@ def generar_informe(rol=None):
         )
 
     if rol not in ROLES:
+        print(f"El rol '{rol}' no existe.")
         return []
 
     configuracion = ROLES[rol]
@@ -61,9 +82,8 @@ def generar_informe(rol=None):
         for nombre in configuracion["columnas"]
     ]
 
-    if "minimo" in configuracion:
-        minimo = configuracion["minimo"]
-
+    minimo = configuracion.get("minimo")
+    if minimo is not None:
         columnas = list(
             filter(
                 lambda x: x[1]["completitud"] >= minimo,
@@ -74,6 +94,10 @@ def generar_informe(rol=None):
     criterio = configuracion["criterio"]
     descendente = configuracion["orden"] == "B"
 
+    if criterio not in ("nombre", "completitud"):
+        print(f"Criterio '{criterio}' inválido para el rol '{rol}'.")
+        return columnas
+
     if criterio == "nombre":
         columnas = sorted(
             columnas,
@@ -81,7 +105,7 @@ def generar_informe(rol=None):
             reverse=descendente
         )
 
-    elif criterio == "completitud":
+    else:
         columnas = sorted(
             columnas,
             key=lambda x: x[1]["completitud"],
