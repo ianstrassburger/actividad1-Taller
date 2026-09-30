@@ -15,8 +15,17 @@ Elegí diccionarios porque permiten acceder fácilmente a la información usando
 el nombre de una columna o de un rol como clave. Para las columnas de interés
 usé listas porque se pueden recorrer, filtrar y ordenar.
 
+Un diccionario de diccionarios tiene ventaja sobre una lista de tuplas porque
+permite buscar una columna por nombre sin recorrer toda la lista, y sobre un
+conjunto porque conserva el tipo y la completitud de cada columna. Las listas
+de columnas de cada rol mantienen un orden y son fáciles de recorrer.
+
 Separé `ROLES` de la lógica del informe para poder modificar o agregar roles
 sin tener que cambiar las funciones.
+
+Parámetros con valor por defecto: `rol=None` en `generar_informe()` y
+`mostrar_informe()` (informe general). Dentro de cada rol, `minimo` es
+opcional y se lee con `get("minimo")`; si falta, no se filtra.
 
 ## Valores y pruebas
 
@@ -40,6 +49,9 @@ Si se recibe un criterio distinto de `nombre` o `completitud`, el programa
 lo detecta y muestra un mensaje en lugar de intentar utilizar un criterio
 desconocido.
 
+Si se pide un rol que no existe, el programa muestra un mensaje y devuelve una
+lista vacía en lugar de fallar.
+
 Si el informe por defecto tuviera que corresponder a un rol, se podría cambiar
 el valor por defecto de `rol` o seleccionar ese rol cuando `rol` sea `None`.
 
@@ -50,8 +62,12 @@ el valor por defecto de `rol` o seleccionar ese rol cuando `rol` sea `None`.
 Agregué el rol `economista` con las columnas solicitadas, orden por nombre
 ascendente y un mínimo de completitud del 90 %.
 
-`ITF` tiene 85 % de completitud, por lo que queda excluida. Esto permite
-comprobar que el umbral funciona correctamente.
+`ITF` (85 %) y `GDECCFR` (88 %) no alcanzan el mínimo de 90 %, por lo que
+quedan excluidas. El informe resultante muestra 7 columnas ordenadas
+alfabéticamente.
+
+**Prueba realizada:** ejecuté `mostrar_informe("economista")` y verifiqué que
+`ITF`, `GDECCFR` y `NIVEL_ED` no aparecen.
 
 ### 2. NIVEL_ED
 
@@ -60,6 +76,9 @@ Agregué `NIVEL_ED` como `int` con 88 % de completitud sin modificar los roles.
 Por eso aparece en el informe general, que considera todas las columnas, pero
 no aparece en los informes por rol, ya que cada rol utiliza solamente sus
 columnas de interés.
+
+**Prueba realizada:** `mostrar_informe()` incluye `NIVEL_ED`, mientras que los
+informes de `docente`, `investigador`, `analista` y `economista` no la incluyen.
 
 ### 3. Uso de filter()
 
